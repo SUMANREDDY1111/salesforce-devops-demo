@@ -1,20 +1,22 @@
 name: Salesforce CI
 
 on:
-  push:
+  pull_request:
     branches:
       - main
+  push:
+    branches:
       - feature/**
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -22,5 +24,21 @@ jobs:
       - name: Install Salesforce CLI
         run: npm install -g @salesforce/cli
 
-      - name: Check Salesforce CLI version
+      - name: Verify Salesforce CLI installation
         run: sf --version
+
+      - name: Validate Salesforce project files
+        run: |
+          test -f sfdx-project.json
+          test -d force-app
+          test -d force-app/main/default
+
+      - name: Check Apex classes folder
+        run: |
+          if [ -d "force-app/main/default/classes" ]; then
+            echo "Apex classes folder exists"
+            ls -R force-app/main/default/classes
+          else
+            echo "Apex classes folder not found"
+            exit 1
+          fi
