@@ -8,6 +8,10 @@ public class CustomerFeedbackTriggerHandler {
             if (String.isBlank(feedback.Status__c)) {
                 feedback.Status__c = 'New';
             }
+
+            if (feedback.Rating__c != null && feedback.Rating__c <= 2) {
+                feedback.Status__c = 'Reviewed';
+            }
         }
     }
 }
